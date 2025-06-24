@@ -37,7 +37,6 @@ public class Rental {
     @NotNull(message = "Equipment is required")
     private Equipment equipment;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "payment_id")
+    @OneToOne(mappedBy = "rental", cascade = CascadeType.ALL, orphanRemoval = true)
     private Payment payment;
 }

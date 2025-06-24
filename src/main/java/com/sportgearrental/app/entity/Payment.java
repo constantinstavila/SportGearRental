@@ -27,7 +27,7 @@ public class Payment {
     @Size(max = 20, message = "Status must be less than 20 characters")
     private String status;
 
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "payment")
-    @NotNull(message = "Rental is required")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rental_id", nullable = false)
     private Rental rental;
 }

@@ -32,10 +32,10 @@ public class Customer {
     private String email;
 
     @NotBlank(message= "Password is required")
-    @Size(max=6, message = "Password must be al least 6 characters")
+    @Size(min=6, message = "Password must be al least 6 characters")
     private String password;
 
-    @Size(max=10, message = "Address must be less than 100 characters")
+    @Size(max=100, message = "Address must be less than 100 characters")
     private String address;
 
     @NotBlank(message= "Phone number is required")

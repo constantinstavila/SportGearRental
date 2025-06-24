@@ -35,11 +35,11 @@ public class Equipment {
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
     private BigDecimal pricePerDay;
 
-    private boolean availabe = true;
+    private boolean available = true;
 
     @NotBlank(message = "Conditions required")
     @Size (max=50, message="Condition must be less than 50 characters")
-    private String condition;
+    private String equipmentCondition;
 
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rental> rentals;
