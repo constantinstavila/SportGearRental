@@ -1,6 +1,5 @@
 package com.sportgearrental.app.config;
 
-import com.sportgearrental.app.entity.Customer;
 import com.sportgearrental.app.repository.CustomerRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +25,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/webjars/**", "/register").permitAll()
+                        .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/webjars/**", "/register", "/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -44,7 +43,7 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            Customer customer = customerRepository.findByEmail(username);
+            com.sportgearrental.app.entity.Customer customer = customerRepository.findByEmail(username);
             if (customer == null) {
                 throw new UsernameNotFoundException("Customer not found with email: " + username);
             }

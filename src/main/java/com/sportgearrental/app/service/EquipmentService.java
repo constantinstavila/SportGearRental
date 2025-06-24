@@ -1,34 +1,14 @@
 package com.sportgearrental.app.service;
 
-
-import com.sportgearrental.app.entity.Equipment;
-import org.springframework.stereotype.Service;
-
+import com.sportgearrental.app.dto.EquipmentDTO;
 import java.util.List;
 
-
 public interface EquipmentService {
-
-                               //CRUD operations
-
-    //  CREATE
-    Equipment createEquipment (Equipment equipment);
-
-    //  UPDATE
-    Equipment updateEquipment (Long id, Equipment equipment);
-
-    //  DELETE
-    void deleteEquipment (Long id);
-
-    //   Find equipment by ID
-    Equipment findEquipmentById (Long id);
-
-    //Find all equipments
-    List<Equipment> findAllEquipments();
-
-    //  Find all available equipments
-    List<Equipment> findAvailableEquipments();
-
-    //  Find by equipments by categories
-    List<Equipment> findEquipmentsByCategory (Long categoryID);
+    EquipmentDTO createEquipment(EquipmentDTO equipmentDTO);
+    EquipmentDTO updateEquipment(Long id, EquipmentDTO equipmentDTO);
+    void deleteEquipment(Long id);
+    EquipmentDTO findEquipmentById(Long id);
+    List<EquipmentDTO> findAllEquipments();
+    List<EquipmentDTO> findAvailableEquipments();
+    List<EquipmentDTO> findEquipmentsByCategory(Long categoryId);
 }

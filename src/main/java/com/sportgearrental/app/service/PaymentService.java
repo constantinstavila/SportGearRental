@@ -1,14 +1,11 @@
 package com.sportgearrental.app.service;
 
-
-import com.sportgearrental.app.entity.Payment;
-import com.sportgearrental.app.entity.Rental;
-
+import com.sportgearrental.app.dto.PaymentDTO;
+import com.sportgearrental.app.dto.RentalDTO;
 import java.math.BigDecimal;
 
 public interface PaymentService {
-
-    Payment processPayment(Rental rental, BigDecimal amount);
-    Payment findPaymentById(Long id);
+    PaymentDTO processPayment(RentalDTO rental, BigDecimal amount);
+    PaymentDTO findPaymentById(Long id);
     void cancelPayment(Long id);
 }

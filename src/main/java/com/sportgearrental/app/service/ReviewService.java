@@ -1,15 +1,12 @@
 package com.sportgearrental.app.service;
 
-
-import com.sportgearrental.app.entity.Review;
-
+import com.sportgearrental.app.dto.ReviewDTO;
 import java.util.List;
 
 public interface ReviewService {
-
-    Review  createReview (Review review);
-    Review updateReview (Long id, Review review);
-    void deleteReview (Long id);
-    Review findReviewById (Long id);
-    List<Review> findReviewsByEquipment (Long equipmentId);
+    ReviewDTO createReview(ReviewDTO reviewDTO);
+    ReviewDTO updateReview(Long id, ReviewDTO reviewDTO);
+    void deleteReview(Long id);
+    ReviewDTO findReviewById(Long id);
+    List<ReviewDTO> findReviewsByEquipment(Long equipmentId);
 }

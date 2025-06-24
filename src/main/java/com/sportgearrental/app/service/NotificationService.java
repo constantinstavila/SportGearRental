@@ -1,15 +1,11 @@
 package com.sportgearrental.app.service;
 
-import com.sportgearrental.app.entity.Customer;
-import com.sportgearrental.app.entity.Payment;
-import com.sportgearrental.app.entity.Rental;
+import com.sportgearrental.app.dto.CustomerDTO;
+import com.sportgearrental.app.dto.PaymentDTO;
+import com.sportgearrental.app.dto.RentalDTO;
 
 public interface NotificationService {
-
-
-    void sendRentalConfirmation(Customer customer, Rental rental);
-    void sendPaymentConfirmation(Customer customer, Payment payment);
-    void sendRentalReminder(Customer customer, Rental rental);
-
-
+    void sendRentalConfirmation(CustomerDTO customer, RentalDTO rental);
+    void sendPaymentConfirmation(CustomerDTO customer, PaymentDTO payment);
+    void sendRentalReminder(CustomerDTO customer, RentalDTO rental);
 }
