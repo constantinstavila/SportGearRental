@@ -1,53 +1,50 @@
 package com.sportgearrental.app.entity;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Table(name = "customers")
+@Getter
+@Setter
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message= "First name is required")
-    @Size(max=50, message = "First name must be les than 50 characters")
+    @NotBlank(message = "First name is required")
+    @Column(name = "first_name")
     private String firstName;
 
-    @NotBlank(message= "Lats name is required")
-    @Size(max=50, message = "First name must be les than 50 characters")
+    @NotBlank(message = "Last name is required")
+    @Column(name = "last_name")
     private String lastName;
 
-    @NotBlank(message ="Email is required")
-    @Email(message = "Email must be valid")
-    @Column (unique = true)
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
+    @Column(name = "email", unique = true)
     private String email;
 
-    @NotBlank(message= "Password is required")
-    @Size(min=6, message = "Password must be al least 6 characters")
+    @NotBlank(message = "Password is required")
+    @Column(name = "password")
     private String password;
 
-    @Size(max=100, message = "Address must be less than 100 characters")
+    @Column(name = "address")
     private String address;
 
-    @NotBlank(message= "Phone number is required")
-    @Pattern (regexp = "^\\\\+?[1-9]\\\\d{1,14}$", message = "Phone number must be valid" )
+    @Column(name = "phone_number")
     private String phoneNumber;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Rental> rentals;
+    private List<Rental> rentals = new ArrayList<>();
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviews;
-
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Notification> notifications;
+    private List<Review> reviews = new ArrayList<>();
 }

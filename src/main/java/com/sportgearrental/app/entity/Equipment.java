@@ -1,18 +1,19 @@
 package com.sportgearrental.app.entity;
 
-
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Table(name = "equipments")
+@Getter
+@Setter
 public class Equipment {
 
     @Id
@@ -20,31 +21,31 @@ public class Equipment {
     private Long id;
 
     @NotBlank(message = "Name is required")
-    @Size (max = 100, message = "Name must be less than 100 characters")
+    @Column(name = "name")
     private String name;
 
-    @Size (max=500, message= "Description must be less than 500 characters")
+    @Column(name = "description")
     private String description;
 
-    @ManyToOne ( fetch = FetchType.LAZY)
-    @JoinColumn (name ="category_id", nullable = false)
-    @NotNull(message = "Category is required")
-    private Category category;              //category class....
-
     @NotNull(message = "Price per day is required")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
+    @Column(name = "price_per_day")
     private BigDecimal pricePerDay;
 
-    private boolean available = true;
+    @NotNull(message = "Availability is required")
+    @Column(name = "available")
+    private boolean available;
 
-    @NotBlank(message = "Conditions required")
-    @Size (max=50, message="Condition must be less than 50 characters")
+    @Column(name = "equipment_condition")
     private String equipmentCondition;
 
-    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Rental> rentals;
+    @NotNull(message = "Category is required")
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List <Review> reviews;
+    private List<Rental> rentals = new ArrayList<>();
 
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 }

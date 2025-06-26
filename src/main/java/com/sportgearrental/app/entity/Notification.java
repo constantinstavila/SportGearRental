@@ -1,34 +1,34 @@
 package com.sportgearrental.app.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Table(name = "notifications")
+@Getter
+@Setter
 public class Notification {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Message is required")
-    @Size(max = 500, message = "Message must be less than 500 characters")
+    @Column(name = "message")
     private String message;
 
-    @NotNull(message = "Send date is required")
-    private LocalDateTime sendDate;
+    @Column(name = "sent_date")
+    private LocalDateTime sentDate;
 
     @NotBlank(message = "Type is required")
-    @Size(max = 20, message = "Type must be less than 20 characters")
+    @Column(name = "type")
     private String type;
 
-    @NotBlank(message = "Status is required")
-    @Size(max = 20, message = "Status must be less than 20 characters")
-    private String status;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
-    @NotNull(message = "Customer is required")
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 }

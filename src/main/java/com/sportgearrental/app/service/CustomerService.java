@@ -1,13 +1,14 @@
 package com.sportgearrental.app.service;
 
-import com.sportgearrental.app.dto.CustomerDTO;
+import com.sportgearrental.app.entity.Customer;
+
 import java.util.List;
 
 public interface CustomerService {
-    CustomerDTO createCustomer(CustomerDTO customerDTO);
-    CustomerDTO updateCustomer(Long id, CustomerDTO customerDTO);
+    Customer createCustomer(Customer customer);
+    Customer updateCustomer(Long id, Customer customer);
     void deleteCustomer(Long id);
-    CustomerDTO findCustomerById(Long id);
-    CustomerDTO findCustomerByEmail(String email);
-    List<CustomerDTO> findAllCustomers();
+    Customer findCustomerById(Long id);
+    Customer findCustomerByEmail(String email);
+    List<Customer> findAllCustomers();
 }

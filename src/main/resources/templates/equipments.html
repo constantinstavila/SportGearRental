@@ -43,7 +43,7 @@
                     <a class="nav-link" href="/profile">Profil</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/login">Login</a>
+                    <a class="nav-link" href="/logout">Logout</a>
                 </li>
             </ul>
         </div>
@@ -51,14 +51,18 @@
 </nav>
 <div class="container my-5">
     <h2>Echipamente disponibile</h2>
-    <div class="row">
+    <div th:if="${equipments.isEmpty()}">
+        <p>Nu există echipamente disponibile momentan.</p>
+    </div>
+    <div class="row" th:unless="${equipments.isEmpty()}">
         <div class="col-md-4 mb-4" th:each="equipment : ${equipments}">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${equipment.name}"></h5>
-                    <p class="card-text" th:text="${equipment.description}"></p>
-                    <p class="card-text" th:text="'Preț: ' + ${equipment.pricePerDay} + ' RON/zi'"></p>
-                    <a th:href="'/equipment/' + ${equipment.id}" class="btn btn-outline-primary">Detalii</a>
+                    <p class="card-text" th:text="'Categorie: ' + ${equipment.category.name}"></p>
+                    <p class="card-text" th:text="'Preț pe zi: ' + ${equipment.pricePerDay} + ' RON'"></p>
+                    <p class="card-text" th:text="'Disponibil: ' + (${equipment.available} ? 'Da' : 'Nu')"></p>
+                    <a th:href="@{/equipment/{id}(id=${equipment.id})}" class="btn btn-primary">Vezi detalii</a>
                 </div>
             </div>
         </div>

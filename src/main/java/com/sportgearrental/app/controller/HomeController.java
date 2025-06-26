@@ -1,19 +1,22 @@
 package com.sportgearrental.app.controller;
 
-
+import com.sportgearrental.app.service.CategoryService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
 
-    @GetMapping("/")
-    public String home (){
-        return "index";
+    private final CategoryService categoryService;
+
+    public HomeController(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
-    @GetMapping ("/login")
-    public String loghin (){
-        return "login";
+    @GetMapping("/")
+    public String showHomePage(Model model) {
+        model.addAttribute("categories", categoryService.findAllCategories());
+        return "index";
     }
 }

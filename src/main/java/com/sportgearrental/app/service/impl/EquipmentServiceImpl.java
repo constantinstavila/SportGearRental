@@ -1,54 +1,38 @@
 package com.sportgearrental.app.service.impl;
 
-import com.sportgearrental.app.dto.EquipmentDTO;
-import com.sportgearrental.app.entity.Category;
 import com.sportgearrental.app.entity.Equipment;
-import com.sportgearrental.app.mapper.EntityMapper;
-import com.sportgearrental.app.repository.CategoryRepository;
 import com.sportgearrental.app.repository.EquipmentRepository;
 import com.sportgearrental.app.service.EquipmentService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class EquipmentServiceImpl implements EquipmentService {
 
     private final EquipmentRepository equipmentRepository;
-    private final CategoryRepository categoryRepository;
-    private final EntityMapper entityMapper;
 
-    public EquipmentServiceImpl(EquipmentRepository equipmentRepository, CategoryRepository categoryRepository, EntityMapper entityMapper) {
+    public EquipmentServiceImpl(EquipmentRepository equipmentRepository) {
         this.equipmentRepository = equipmentRepository;
-        this.categoryRepository = categoryRepository;
-        this.entityMapper = entityMapper;
     }
 
     @Override
-    public EquipmentDTO createEquipment(EquipmentDTO equipmentDTO) {
-        Category category = categoryRepository.findById(equipmentDTO.getCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + equipmentDTO.getCategoryId()));
-        Equipment equipment = entityMapper.toEquipmentEntity(equipmentDTO);
-        equipment.setCategory(category);
-        equipment = equipmentRepository.save(equipment);
-        return entityMapper.toEquipmentDTO(equipment);
+    public Equipment createEquipment(Equipment equipment) {
+        return equipmentRepository.save(equipment);
     }
 
     @Override
-    public EquipmentDTO updateEquipment(Long id, EquipmentDTO equipmentDTO) {
+    public Equipment updateEquipment(Long id, Equipment equipment) {
         Equipment existing = equipmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Equipment not found with id: " + id));
-        Category category = categoryRepository.findById(equipmentDTO.getCategoryId())
-                .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + equipmentDTO.getCategoryId()));
-        existing.setName(equipmentDTO.getName());
-        existing.setDescription(equipmentDTO.getDescription());
-        existing.setEquipmentCondition(equipmentDTO.getEquipmentCondition());
-        existing.setPricePerDay(equipmentDTO.getPricePerDay());
-        existing.setAvailable(equipmentDTO.isAvailable());
-        existing.setCategory(category);
-        equipmentRepository.save(existing);
-        return entityMapper.toEquipmentDTO(existing);
+        existing.setName(equipment.getName());
+        existing.setDescription(equipment.getDescription());
+        existing.setPricePerDay(equipment.getPricePerDay());
+        existing.setAvailable(equipment.isAvailable());
+        existing.setEquipmentCondition(equipment.getEquipmentCondition());
+        existing.setCategory(equipment.getCategory());
+        return equipmentRepository.save(existing);
     }
 
     @Override
@@ -60,30 +44,25 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
-    public EquipmentDTO findEquipmentById(Long id) {
-        Equipment equipment = equipmentRepository.findById(id)
+    public Equipment findEquipmentById(Long id) {
+        return equipmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Equipment not found with id: " + id));
-        return entityMapper.toEquipmentDTO(equipment);
     }
 
     @Override
-    public List<EquipmentDTO> findAllEquipments() {
-        return equipmentRepository.findAll().stream()
-                .map(entityMapper::toEquipmentDTO)
-                .collect(Collectors.toList());
+    public List<Equipment> findAllEquipments() {
+        return equipmentRepository.findAll();
     }
 
     @Override
-    public List<EquipmentDTO> findAvailableEquipments() {
-        return equipmentRepository.findByAvailableTrue().stream()
-                .map(entityMapper::toEquipmentDTO)
-                .collect(Collectors.toList());
+    public List<Equipment> findAvailableEquipments() {
+        return equipmentRepository.findByAvailableTrue();
     }
 
     @Override
-    public List<EquipmentDTO> findEquipmentsByCategory(Long categoryId) {
-        return equipmentRepository.findByCategoryId(categoryId).stream()
-                .map(entityMapper::toEquipmentDTO)
-                .collect(Collectors.toList());
+    public String getEquipmentNameById(Long id) {
+        return equipmentRepository.findById(id)
+                .map(Equipment::getName)
+                .orElse("Unknown");
     }
 }

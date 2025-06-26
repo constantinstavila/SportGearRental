@@ -1,24 +1,30 @@
 package com.sportgearrental.app.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Table(name = "categories")
+@Getter
+@Setter
 public class Category {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Name is required")
-    @Size(max = 50, message = "Name must be less than 50 characters")
+    @Column(name = "name")
     private String name;
 
-    @Size(max = 255, message = "Description must be less than 255 characters")
+    @Column(name = "description")
     private String description;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Equipment> equipments;
+    private List<Equipment> equipments = new ArrayList<>();
 }

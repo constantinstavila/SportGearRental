@@ -1,12 +1,13 @@
 package com.sportgearrental.app.service;
 
-import com.sportgearrental.app.dto.CategoryDTO;
+import com.sportgearrental.app.entity.Category;
+
 import java.util.List;
 
 public interface CategoryService {
-    CategoryDTO createCategory(CategoryDTO categoryDTO);
-    CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO);
+    Category createCategory(Category category);
+    Category updateCategory(Long id, Category category);
     void deleteCategory(Long id);
-    CategoryDTO findCategoryById(Long id);
-    List<CategoryDTO> findAllCategories();
+    Category findCategoryById(Long id);
+    List<Category> findAllCategories();
 }

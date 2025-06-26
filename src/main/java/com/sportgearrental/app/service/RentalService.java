@@ -1,13 +1,14 @@
 package com.sportgearrental.app.service;
 
-import com.sportgearrental.app.dto.RentalDTO;
+import com.sportgearrental.app.entity.Rental;
+
 import java.util.List;
 
 public interface RentalService {
-    RentalDTO createRental(RentalDTO rentalDTO);
-    RentalDTO updateRental(Long id, RentalDTO rentalDTO);
+    Rental createRental(Rental rental);
+    Rental updateRental(Long id, Rental rental);
     void deleteRental(Long id);
-    RentalDTO findRentalById(Long id);
-    List<RentalDTO> findRentalsByCustomer(Long customerId);
-    List<RentalDTO> findRentalsByEquipment(Long equipmentId);
+    Rental findRentalById(Long id);
+    List<Rental> findRentalsByCustomer(Long customerId);
+    List<Rental> findRentalsByEquipment(Long equipmentId);
 }

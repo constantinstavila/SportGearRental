@@ -1,33 +1,40 @@
 package com.sportgearrental.app.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Table(name = "payments")
+@Getter
+@Setter
 public class Payment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull(message = "Amount is required")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Amount must be greater than 0")
-    private java.math.BigDecimal amount;
+    @Column(name = "amount")
+    private BigDecimal amount;
 
     @NotBlank(message = "Method is required")
-    @Size(max = 20, message = "Method must be less than 20 characters")
+    @Column(name = "method")
     private String method;
 
-    @NotNull(message = "Payment date is required")
+    @Column(name = "payment_date")
     private LocalDateTime paymentDate;
 
     @NotBlank(message = "Status is required")
-    @Size(max = 20, message = "Status must be less than 20 characters")
+    @Column(name = "status")
     private String status;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rental_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "rental_id")
     private Rental rental;
 }

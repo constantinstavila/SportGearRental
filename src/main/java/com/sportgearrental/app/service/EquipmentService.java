@@ -1,14 +1,15 @@
 package com.sportgearrental.app.service;
 
-import com.sportgearrental.app.dto.EquipmentDTO;
+import com.sportgearrental.app.entity.Equipment;
+
 import java.util.List;
 
 public interface EquipmentService {
-    EquipmentDTO createEquipment(EquipmentDTO equipmentDTO);
-    EquipmentDTO updateEquipment(Long id, EquipmentDTO equipmentDTO);
+    Equipment createEquipment(Equipment equipment);
+    Equipment updateEquipment(Long id, Equipment equipment);
     void deleteEquipment(Long id);
-    EquipmentDTO findEquipmentById(Long id);
-    List<EquipmentDTO> findAllEquipments();
-    List<EquipmentDTO> findAvailableEquipments();
-    List<EquipmentDTO> findEquipmentsByCategory(Long categoryId);
+    Equipment findEquipmentById(Long id);
+    List<Equipment> findAllEquipments();
+    List<Equipment> findAvailableEquipments();
+    String getEquipmentNameById(Long id);
 }
