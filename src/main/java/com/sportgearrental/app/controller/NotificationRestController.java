@@ -18,19 +18,22 @@ public class NotificationRestController {
     }
 
     @PostMapping("/rental-confirmation")
-    public ResponseEntity<Void> sendRentalConfirmation(@RequestBody Customer customer, @RequestBody Rental rental) {
+    public ResponseEntity<Void> sendRentalConfirmation(@RequestBody Rental rental) {
+        Customer customer = rental.getCustomer();
         notificationService.sendRentalConfirmation(customer, rental);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/payment-confirmation")
-    public ResponseEntity<Void> sendPaymentConfirmation(@RequestBody Customer customer, @RequestBody Payment payment) {
+    public ResponseEntity<Void> sendPaymentConfirmation(@RequestBody Payment payment) {
+        Customer customer = payment.getRental().getCustomer();
         notificationService.sendPaymentConfirmation(customer, payment);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/rental-reminder")
-    public ResponseEntity<Void> sendRentalReminder(@RequestBody Customer customer, @RequestBody Rental rental) {
+    public ResponseEntity<Void> sendRentalReminder(@RequestBody Rental rental) {
+        Customer customer = rental.getCustomer();
         notificationService.sendRentalReminder(customer, rental);
         return ResponseEntity.ok().build();
     }

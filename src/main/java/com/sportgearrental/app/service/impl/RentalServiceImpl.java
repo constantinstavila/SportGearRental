@@ -10,6 +10,8 @@ import com.sportgearrental.app.service.RentalService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -32,15 +34,32 @@ public class RentalServiceImpl implements RentalService {
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + rental.getCustomer().getId()));
         Equipment equipment = equipmentRepository.findById(rental.getEquipment().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Equipment not found with id: " + rental.getEquipment().getId()));
+
+        // Check equipment availability
         if (!equipment.isAvailable()) {
             throw new IllegalStateException("Equipment is not available for rental");
         }
+
+        // Check for overlapping rentals
+        List<Rental> existingRentals = rentalRepository.findByEquipmentId(equipment.getId());
+        for (Rental existing : existingRentals) {
+            if (!(rental.getEndDate().isBefore(existing.getStartDate()) || rental.getStartDate().isAfter(existing.getEndDate()))) {
+                throw new IllegalStateException("Equipment is already rented for the selected dates");
+            }
+        }
+
         if (rental.getStartDate().isAfter(rental.getEndDate())) {
             throw new IllegalArgumentException("Start date must be before end date");
         }
+
+        // Calculate total cost
+        long days = ChronoUnit.DAYS.between(rental.getStartDate(), rental.getEndDate()) + 1;
+        BigDecimal totalCost = equipment.getPricePerDay().multiply(BigDecimal.valueOf(days));
+        rental.setTotalCost(totalCost);
+
         rental.setCustomer(customer);
         rental.setEquipment(equipment);
-        rental.setEquipmentName(equipment.getName());
+        rental.setStatus("PENDING");
         equipment.setAvailable(false);
         rentalRepository.save(rental);
         equipmentRepository.save(equipment);
@@ -55,16 +74,21 @@ public class RentalServiceImpl implements RentalService {
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + rental.getCustomer().getId()));
         Equipment equipment = equipmentRepository.findById(rental.getEquipment().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Equipment not found with id: " + rental.getEquipment().getId()));
+
         if (rental.getStartDate().isAfter(rental.getEndDate())) {
             throw new IllegalArgumentException("Start date must be before end date");
         }
+
+        // Update total cost
+        long days = ChronoUnit.DAYS.between(rental.getStartDate(), rental.getEndDate()) + 1;
+        BigDecimal totalCost = equipment.getPricePerDay().multiply(BigDecimal.valueOf(days));
+
         existing.setStartDate(rental.getStartDate());
         existing.setEndDate(rental.getEndDate());
-        existing.setTotalCost(rental.getTotalCost());
+        existing.setTotalCost(totalCost);
         existing.setStatus(rental.getStatus());
         existing.setCustomer(customer);
         existing.setEquipment(equipment);
-        existing.setEquipmentName(equipment.getName());
         return rentalRepository.save(existing);
     }
 
@@ -80,23 +104,22 @@ public class RentalServiceImpl implements RentalService {
 
     @Override
     public Rental findRentalById(Long id) {
-        Rental rental = rentalRepository.findById(id)
+        return rentalRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Rental not found with id: " + id));
-        rental.setEquipmentName(rental.getEquipment().getName());
-        return rental;
     }
 
     @Override
     public List<Rental> findRentalsByCustomer(Long customerId) {
-        List<Rental> rentals = rentalRepository.findByCustomerId(customerId);
-        rentals.forEach(rental -> rental.setEquipmentName(rental.getEquipment().getName()));
-        return rentals;
+        return customerId == null ? rentalRepository.findAll() : rentalRepository.findByCustomerId(customerId);
     }
 
     @Override
     public List<Rental> findRentalsByEquipment(Long equipmentId) {
-        List<Rental> rentals = rentalRepository.findByEquipmentId(equipmentId);
-        rentals.forEach(rental -> rental.setEquipmentName(rental.getEquipment().getName()));
-        return rentals;
+        return rentalRepository.findByEquipmentId(equipmentId);
+    }
+
+    @Override
+    public List<Rental> findAll() {
+        return rentalRepository.findAll();
     }
 }

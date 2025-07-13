@@ -58,8 +58,11 @@
     </div>
 </nav>
 <div class="equipment-container">
+    <div th:if="${error != null}" class="alert alert-danger" th:text="#{${error}}"></div>
     <h2 class="text-center mb-4" th:text="${equipment.name}"></h2>
     <div class="card">
+        <img th:if="${equipment.imageUrl}" th:src="${equipment.imageUrl}" class="card-img-top" alt="Equipment Image">
+        <img th:unless="${equipment.imageUrl}" src="https://via.placeholder.com/300x200" class="card-img-top" alt="Placeholder Image">
         <div class="card-body">
             <p><strong>Descriere:</strong> <span th:text="${equipment.description} ?: 'Nespecificată'"></span></p>
             <p><strong>Categorie:</strong> <span th:text="${equipment.category.name}"></span></p>
@@ -67,7 +70,7 @@
             <p><strong>Condiție:</strong> <span th:text="${equipment.equipmentCondition} ?: 'Nespecificată'"></span></p>
             <p><strong>Disponibil:</strong> <span th:text="${equipment.available} ? 'Da' : 'Nu'"></span></p>
             <div th:if="${equipment.available}">
-                <a th:href="@{/rentals/new(equipmentId=${equipment.id})}" class="btn btn-primary">Închiriază</a>
+                <a th:href="@{/rentals/new/{equipmentId}(equipmentId=${equipment.id})}" class="btn btn-primary">Închiriază</a>
             </div>
         </div>
     </div>

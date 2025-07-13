@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -30,17 +31,27 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**") // Disable CSRF for API endpoints
+                )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/profile")
+                        .defaultSuccessUrl("/profile", false)
+                        .successHandler((request, response, authentication) -> {
+                            if (authentication.getAuthorities().stream()
+                                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
+                                response.sendRedirect("/admin/dashboard");
+                            } else {
+                                response.sendRedirect("/profile");
+                            }
+                        })
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
-                )
-                .csrf(csrf -> csrf.disable());
+                );
         return http.build();
     }
 
@@ -51,7 +62,7 @@ public class SecurityConfig {
             if (customer == null) {
                 throw new UsernameNotFoundException("Customer not found with email: " + username);
             }
-            String role = customer.getEmail().equals("admin@sportgearrental.com") ? "ADMIN" : "USER";
+            String role = customer.getRole() != null ? customer.getRole() : "USER"; // Use role from Customer entity
             return org.springframework.security.core.userdetails.User
                     .withUsername(customer.getEmail())
                     .password(customer.getPassword())

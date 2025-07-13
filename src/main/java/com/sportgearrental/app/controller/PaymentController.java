@@ -1,5 +1,6 @@
 package com.sportgearrental.app.controller;
 
+import com.sportgearrental.app.entity.Payment;
 import com.sportgearrental.app.entity.Rental;
 import com.sportgearrental.app.service.PaymentService;
 import com.stripe.Stripe;
@@ -37,38 +38,43 @@ public class PaymentController {
                 model.addAttribute("error", "payment.already.completed");
                 return "error";
             }
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                    .setAmount((long) (rental.getTotalCost().doubleValue() * 100))
+                    .setCurrency("RON")
+                    .setAutomaticPaymentMethods(
+                            PaymentIntentCreateParams.AutomaticPaymentMethods
+                                    .builder()
+                                    .setEnabled(true)
+                                    .build()
+                    )
+                    .build();
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
             model.addAttribute("rental", rental);
             model.addAttribute("stripePublicKey", stripePublicKey);
+            model.addAttribute("clientSecret", paymentIntent.getClientSecret());
             return "payment";
         } catch (EntityNotFoundException e) {
             model.addAttribute("error", "rental.not.found");
+            return "error";
+        } catch (StripeException e) {
+            model.addAttribute("error", "payment.stripe.error");
             return "error";
         }
     }
 
     @PostMapping("/rentals/{id}/payment")
-    public String processPayment(@PathVariable Long id, @RequestParam String stripeToken, Model model) {
+    public String processPayment(@PathVariable Long id, Model model, @RequestParam("stripePaymentId") String stripePaymentId) {
         try {
             Rental rental = paymentService.findRentalById(id);
             if (rental.getPayment() != null && "COMPLETED".equals(rental.getPayment().getStatus())) {
                 model.addAttribute("error", "payment.already.completed");
                 return "error";
             }
-            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-                    .setAmount((long) (rental.getTotalCost().doubleValue() * 100)) // Amount in cents
-                    .setCurrency("ron")
-                    .setPaymentMethod(stripeToken)
-                    .setConfirm(true)
-                    .build();
-            PaymentIntent paymentIntent = PaymentIntent.create(params);
-            paymentService.processPayment(rental, rental.getTotalCost(), paymentIntent.getId());
+            paymentService.processPayment(rental, rental.getTotalCost(), stripePaymentId);
             return "redirect:/rentals?payment=success";
         } catch (EntityNotFoundException e) {
             model.addAttribute("error", "rental.not.found");
             return "error";
-        } catch (StripeException e) {
-            model.addAttribute("error", "payment.stripe.error");
-            return "redirect:/rentals/" + id + "/payment?error=true";
         } catch (Exception e) {
             model.addAttribute("error", "payment.error");
             return "redirect:/rentals/" + id + "/payment?error=true";

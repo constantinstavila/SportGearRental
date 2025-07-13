@@ -40,7 +40,23 @@ public class ImageUploadController {
     }
 
     @PostMapping("/equipment/{id}/upload-image")
-    public String uploadImage(@PathVariable Long id, @RequestParam("image") MultipartFile file) throws IOException {
+    public String uploadImage(@PathVariable Long id, @RequestParam("image") MultipartFile file, Model model) throws IOException {
+        if (file.isEmpty()) {
+            model.addAttribute("error", "Please select a file to upload");
+            model.addAttribute("equipment", equipmentService.findEquipmentById(id));
+            return "upload-image";
+        }
+        String contentType = file.getContentType();
+        if (!contentType.startsWith("image/")) {
+            model.addAttribute("error", "Only image files are allowed");
+            model.addAttribute("equipment", equipmentService.findEquipmentById(id));
+            return "upload-image";
+        }
+        if (file.getSize() > 5 * 1024 * 1024) { // 5MB limit
+            model.addAttribute("error", "File size exceeds 5MB limit");
+            model.addAttribute("equipment", equipmentService.findEquipmentById(id));
+            return "upload-image";
+        }
         Equipment equipment = equipmentService.findEquipmentById(id);
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         equipment.setImageUrl((String) uploadResult.get("secure_url"));

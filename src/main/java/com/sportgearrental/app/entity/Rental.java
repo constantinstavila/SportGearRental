@@ -3,7 +3,6 @@ package com.sportgearrental.app.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -18,24 +17,24 @@ public class Rental {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "equipment_id")
+    @JoinColumn(name = "equipment_id", nullable = false)
     private Equipment equipment;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "customer_id", nullable = false) // Added customer relationship
     private Customer customer;
 
-    @Column(name = "rental_date")
-    private LocalDate rentalDate;
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
 
-    @Column(name = "return_date")
-    private LocalDate returnDate;
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
 
-    @Column(name = "total_cost")
+    @Column(name = "total_cost", nullable = false)
     private BigDecimal totalCost;
 
-    @Column(name = "equipment_name")
-    private String equipmentName;
+    @Column(name = "status", nullable = false)
+    private String status;
 
     @OneToOne(mappedBy = "rental", cascade = CascadeType.ALL)
     private Payment payment;

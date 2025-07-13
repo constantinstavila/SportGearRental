@@ -71,6 +71,9 @@
     <div th:if="${param.payment == 'success'}" class="alert alert-success" th:text="#{payment.success}">
         Payment processed successfully!
     </div>
+    <div th:if="${param.payment == 'cancelled'}" class="alert alert-success" th:text="#{payment.cancelled}">
+        Payment cancelled successfully!
+    </div>
     <div th:if="${rentals.isEmpty()}">
         <p th:text="#{rentals.empty}">No rentals available at the moment.</p>
     </div>
@@ -88,10 +91,10 @@
             </thead>
             <tbody>
             <tr th:each="rental : ${rentals}">
-                <td th:text="${rental.equipmentName}"></td>
-                <td th:text="${rental.rentalDate}"></td>
-                <td th:text="${rental.returnDate}"></td>
-                <td th:text="${rental.totalCost} + ' RON'"></td>
+                <td th:text="${rental.equipment.name}"></td>
+                <td th:text="${rental.startDate}"></td>
+                <td th:text="${rental.endDate}"></td>
+                <td th:text="${rental.totalCost != null} ? ${rental.totalCost} + ' RON' : 'N/A'"></td>
                 <td th:text="${rental.payment != null} ? ${rental.payment.status} : 'PENDING'"></td>
                 <td>
                     <a th:if="${rental.payment == null || rental.payment.status != 'COMPLETED'}"

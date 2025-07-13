@@ -57,6 +57,7 @@
 <div class="register-container">
     <h2 class="text-center mb-4">Înregistrare</h2>
     <form th:action="@{/register}" th:object="${customer}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
             <ul>
                 <li th:each="error : ${#fields.errors('*')}" th:text="${error}"></li>

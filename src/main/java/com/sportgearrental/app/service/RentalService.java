@@ -11,4 +11,5 @@ public interface RentalService {
     Rental findRentalById(Long id);
     List<Rental> findRentalsByCustomer(Long customerId);
     List<Rental> findRentalsByEquipment(Long equipmentId);
+    List<Rental> findAll();
 }

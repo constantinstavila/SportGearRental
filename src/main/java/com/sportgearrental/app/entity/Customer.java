@@ -42,6 +42,9 @@ public class Customer {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "role") // New field for role
+    private String role;
+
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rental> rentals = new ArrayList<>();
 
