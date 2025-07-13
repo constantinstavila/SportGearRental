@@ -3,85 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Echipamente - SportGear Rental</title>
+    <title th:text="#{nav.equipments}">Echipamente</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .navbar-brand {
-            font-weight: bold;
-            color: #2c3e50 !important;
-        }
-        .nav-link {
-            color: #2c3e50 !important;
-        }
-        .nav-link:hover {
-            color: #1abc9c !important;
-        }
-        .equipment-card {
-            transition: transform 0.3s;
-        }
-        .equipment-card:hover {
-            transform: scale(1.03);
-        }
-        .equipment-img {
-            height: 200px;
-            object-fit: cover;
-        }
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f4f9; }
+        .navbar-brand { font-weight: 600; color: #1a3c34 !important; }
+        .nav-link { color: #1a3c34 !important; font-weight: 500; }
+        .nav-link:hover { color: #17a2b8 !important; }
+        .equipment-card { transition: transform 0.3s, box-shadow 0.3s; border: none; border-radius: 10px; }
+        .equipment-card:hover { transform: translateY(-5px); box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        .equipment-img { height: 200px; object-fit: cover; }
+        .btn-primary { background-color: #17a2b8; border-color: #17a2b8; }
+        .btn-primary:hover { background-color: #138496; border-color: #138496; }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/">SportGear Rental</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/" th:text="#{site.title}">SportGear Rental</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link" href="/" th:text="#{nav.home}">Acasă</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" href="/equipments">Echipamente</a>
+                    <a class="nav-link active" href="/equipments" th:text="#{nav.equipments}">Echipamente</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/rentals">Rezervări</a>
+                <li class="nav-item" th:if="${#authentication.authenticated}">
+                    <a class="nav-link" href="/rentals" th:text="#{nav.rentals}">Închirieri</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/profile">Profil</a>
+                <li class="nav-item" th:if="${#authentication.authenticated}">
+                    <a class="nav-link" href="/profile" th:text="#{nav.profile}">Profil</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
+                <li class="nav-item" th:if="${#authentication.authenticated}">
+                    <a class="nav-link" href="/logout" th:text="#{nav.logout}">Deconectare</a>
+                </li>
+                <li class="nav-item" th:unless="${#authentication.authenticated}">
+                    <a class="nav-link" href="/login" th:text="#{nav.login}">Autentificare</a>
+                </li>
+                <li class="nav-item" th:unless="${#authentication.authenticated}">
+                    <a class="nav-link" href="/register" th:text="#{nav.register}">Înregistrare</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+                        <span th:text="${#locale.language == 'ro' ? 'Română' : 'English'}"></span>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                        <li><a class="dropdown-item" href="?lang=en">English</a></li>
+                        <li><a class="dropdown-item" href="?lang=ro">Română</a></li>
+                    </ul>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
 <div class="container my-5">
-    <h2>Echipamente disponibile</h2>
+    <h2 class="text-center mb-4" th:text="#{nav.equipments}">Echipamente disponibile</h2>
+    <div class="mb-4">
+        <label for="categoryFilter" class="form-label">Filtrează după categorie:</label>
+        <select id="categoryFilter" class="form-select w-auto d-inline-block" onchange="window.location.href='/equipments?category='+this.value">
+            <option value="" th:text="#{equipment.form.category.select}">Toate categoriile</option>
+            <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+        </select>
+    </div>
     <div th:if="${equipments.isEmpty()}">
-        <p>Nu există echipamente disponibile momentan.</p>
+        <p class="text-center" th:text="#{equipment.not.found}">Nu există echipamente disponibile momentan.</p>
     </div>
     <div class="row" th:unless="${equipments.isEmpty()}">
         <div class="col-md-4 mb-4" th:each="equipment : ${equipments}">
             <div class="card equipment-card">
                 <img th:if="${equipment.imageUrl}" th:src="${equipment.imageUrl}" class="card-img-top equipment-img" alt="Equipment Image">
-                <img th:unless="${equipment.imageUrl}" src="https://via.placeholder.com/300x200" class="card-img-top equipment-img" alt="Placeholder Image">
+                <img th:unless="${equipment.imageUrl}" src="https://via.placeholder.com/300x200?text=${equipment.name}" class="card-img-top equipment-img" alt="Placeholder Image">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${equipment.name}"></h5>
                     <p class="card-text" th:text="'Categorie: ' + ${equipment.category.name}"></p>
                     <p class="card-text" th:text="'Preț pe zi: ' + ${equipment.pricePerDay} + ' RON'"></p>
                     <p class="card-text" th:text="'Disponibil: ' + (${equipment.available} ? 'Da' : 'Nu')"></p>
-                    <a th:href="@{/equipment/{id}(id=${equipment.id})}" class="btn btn-primary">Vezi detalii</a>
+                    <a th:href="@{/equipment/{id}(id=${equipment.id})}" class="btn btn-primary" th:text="#{categories.view}">Vezi detalii</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<footer class="bg-dark text-white text-center py-3">
-    <p>© 2025 SportGear Rental. Toate drepturile rezervate.</p>
+<footer class="bg-dark text-white text-center py-4">
+    <p th:text="#{footer.copyright}">© 2025 SportGear Rental. Toate drepturile rezervate.</p>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
