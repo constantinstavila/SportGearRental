@@ -38,6 +38,9 @@ public class Equipment {
     @Column(name = "equipment_condition")
     private String equipmentCondition;
 
+    @Column(name = "image_url")
+    private String imageUrl; // New field for image URL
+
     @NotNull(message = "Category is required")
     @ManyToOne
     @JoinColumn(name = "category_id")

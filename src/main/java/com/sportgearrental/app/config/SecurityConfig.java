@@ -27,6 +27,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/webjars/**", "/register", "/login", "/equipments", "/equipment/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -50,10 +51,11 @@ public class SecurityConfig {
             if (customer == null) {
                 throw new UsernameNotFoundException("Customer not found with email: " + username);
             }
+            String role = customer.getEmail().equals("admin@sportgearrental.com") ? "ADMIN" : "USER";
             return org.springframework.security.core.userdetails.User
                     .withUsername(customer.getEmail())
                     .password(customer.getPassword())
-                    .roles("USER")
+                    .roles(role)
                     .build();
         };
     }
