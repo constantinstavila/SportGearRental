@@ -11,7 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -31,9 +30,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**", "/register") // Temporar dezactivat pentru /register debug
-                )
+                .csrf(csrf -> {}) // CSRF is enabled by default; empty config to not disable or ignore
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/profile", false)
@@ -62,7 +59,7 @@ public class SecurityConfig {
             if (customer == null) {
                 throw new UsernameNotFoundException("Customer not found with email: " + username);
             }
-            String role = customer.getRole() != null ? customer.getRole() : "USER"; // Use role from Customer entity
+            String role = customer.getRole() != null ? customer.getRole().name() : "USER"; // Convert enum to String
             return org.springframework.security.core.userdetails.User
                     .withUsername(customer.getEmail())
                     .password(customer.getPassword())

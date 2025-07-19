@@ -4,6 +4,9 @@ import com.sportgearrental.app.entity.Equipment;
 import com.sportgearrental.app.entity.Category;
 import com.sportgearrental.app.service.EquipmentService;
 import com.sportgearrental.app.service.CategoryService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,16 +27,20 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard")
-    public String showAdminDashboard(Model model) {
-        model.addAttribute("equipments", equipmentService.findAllEquipments());
-        model.addAttribute("categories", categoryService.findAllCategories());
+    public String showAdminDashboard(@PageableDefault(size = 10) Pageable pageable, Model model) {
+        Page<Equipment> equipmentsPage = equipmentService.findAllEquipments(pageable);
+        Page<Category> categoriesPage = categoryService.findAllCategories(pageable);
+        model.addAttribute("equipments", equipmentsPage.getContent());
+        model.addAttribute("categories", categoriesPage.getContent());
+        model.addAttribute("equipPage", equipmentsPage);
+        model.addAttribute("catPage", categoriesPage);
         return "admin-dashboard";
     }
 
     @GetMapping("/equipment/new")
     public String showNewEquipmentForm(Model model) {
         model.addAttribute("equipment", new Equipment());
-        model.addAttribute("categories", categoryService.findAllCategories());
+        model.addAttribute("categories", categoryService.findAllCategories(Pageable.unpaged()).getContent()); // Use unpaged for full list in form
         return "admin-new-equipment";
     }
 
@@ -46,7 +53,7 @@ public class AdminController {
     @GetMapping("/equipment/{id}/edit")
     public String showEditEquipmentForm(@PathVariable Long id, Model model) {
         model.addAttribute("equipment", equipmentService.findEquipmentById(id));
-        model.addAttribute("categories", categoryService.findAllCategories());
+        model.addAttribute("categories", categoryService.findAllCategories(Pageable.unpaged()).getContent()); // Use unpaged
         return "admin-edit-equipment";
     }
 

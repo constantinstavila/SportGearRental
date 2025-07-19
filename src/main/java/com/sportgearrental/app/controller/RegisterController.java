@@ -3,6 +3,8 @@ package com.sportgearrental.app.controller;
 import com.sportgearrental.app.entity.Customer;
 import com.sportgearrental.app.service.CustomerService;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class RegisterController {
+
+    private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 
     private final CustomerService customerService;
     private final PasswordEncoder passwordEncoder;
@@ -29,19 +33,18 @@ public class RegisterController {
 
     @PostMapping("/register")
     public String registerCustomer(@Valid Customer customer, BindingResult result, Model model) {
-        System.out.println("Received POST /register for email: " + customer.getEmail());
         if (result.hasErrors()) {
-            System.out.println("Validation errors: " + result.getAllErrors());
+            logger.warn("Validation errors during registration for email: {}", customer.getEmail());
             return "register";
         }
         try {
             customer.setPassword(passwordEncoder.encode(customer.getPassword()));
             customerService.createCustomer(customer);
-            System.out.println("Customer created successfully: " + customer.getEmail());
+            logger.info("Customer created successfully: {}", customer.getEmail());
             return "redirect:/login?success=true";
         } catch (Exception e) {
-            System.out.println("Error creating customer: " + e.getMessage());
-            model.addAttribute("error", "Email already exists or registration failed");
+            logger.error("Error creating customer: {}", e.getMessage());
+            model.addAttribute("error", "Registration failed. Email may already exist.");
             return "register";
         }
     }

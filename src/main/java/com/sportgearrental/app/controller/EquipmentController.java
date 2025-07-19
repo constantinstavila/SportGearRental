@@ -3,16 +3,14 @@ package com.sportgearrental.app.controller;
 import com.sportgearrental.app.entity.Equipment;
 import com.sportgearrental.app.service.CategoryService;
 import com.sportgearrental.app.service.EquipmentService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 public class EquipmentController {
@@ -27,13 +25,16 @@ public class EquipmentController {
     }
 
     @GetMapping("/equipments")
-    public String listEquipments(@RequestParam(value = "category", required = false) Long categoryId, Model model) {
-        List<Equipment> equipments = categoryId != null
-                ? equipmentService.findAllEquipments().stream()
-                .filter(e -> e.getCategory().getId().equals(categoryId))
-                .collect(Collectors.toList())
-                : equipmentService.findAllEquipments();
-        model.addAttribute("equipments", equipments);
+    public String listEquipments(@RequestParam(value = "category", required = false) Long categoryId,
+                                 @PageableDefault(size = 10) Pageable pageable, Model model) {
+        Page<Equipment> equipmentsPage;
+        if (categoryId != null) {
+            equipmentsPage = equipmentService.findByCategoryId(categoryId, pageable);
+        } else {
+            equipmentsPage = equipmentService.findAllEquipments(pageable);
+        }
+        model.addAttribute("equipments", equipmentsPage.getContent());
+        model.addAttribute("page", equipmentsPage);
         model.addAttribute("categories", categoryService.findAllCategories());
         return "equipments";
     }
@@ -44,5 +45,4 @@ public class EquipmentController {
         model.addAttribute("equipment", equipment);
         return "equipment-detail";
     }
-
 }

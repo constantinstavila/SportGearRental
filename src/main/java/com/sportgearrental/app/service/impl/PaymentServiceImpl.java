@@ -6,6 +6,7 @@ import com.sportgearrental.app.repository.PaymentRepository;
 import com.sportgearrental.app.repository.RentalRepository;
 import com.sportgearrental.app.service.PaymentService;
 import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 import com.stripe.model.Refund;
 import com.stripe.param.RefundCreateParams;
 import jakarta.persistence.EntityNotFoundException;
@@ -27,6 +28,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment processPayment(Rental rental, BigDecimal amount) {
+        if (rental.getPayment() != null && "COMPLETED".equals(rental.getPayment().getStatus())) {
+            throw new IllegalStateException("Payment already completed");
+        }
         Payment payment = new Payment();
         payment.setAmount(amount);
         payment.setMethod("CARD");
@@ -41,6 +45,17 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment processPayment(Rental rental, BigDecimal amount, String stripePaymentId) {
+        if (rental.getPayment() != null && "COMPLETED".equals(rental.getPayment().getStatus())) {
+            throw new IllegalStateException("Payment already completed");
+        }
+        try {
+            PaymentIntent paymentIntent = PaymentIntent.retrieve(stripePaymentId);
+            if (!"succeeded".equals(paymentIntent.getStatus())) {
+                throw new RuntimeException("Payment not confirmed by Stripe");
+            }
+        } catch (StripeException e) {
+            throw new RuntimeException("Failed to verify payment: " + e.getMessage(), e);
+        }
         Payment payment = new Payment();
         payment.setAmount(amount);
         payment.setMethod("CARD");
@@ -70,11 +85,17 @@ public class PaymentServiceImpl implements PaymentService {
     public void cancelPayment(Long id) {
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Payment not found with id: " + id));
+        if (!"COMPLETED".equals(payment.getStatus())) {
+            throw new IllegalStateException("Payment not completed");
+        }
         try {
             RefundCreateParams params = RefundCreateParams.builder()
                     .setPaymentIntent(payment.getStripePaymentId())
                     .build();
             Refund refund = Refund.create(params);
+            if (!"succeeded".equals(refund.getStatus())) {
+                throw new RuntimeException("Refund failed: " + refund.getFailureReason());
+            }
             payment.setStatus("CANCELLED");
             paymentRepository.save(payment);
         } catch (StripeException e) {

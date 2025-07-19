@@ -4,6 +4,8 @@ import com.sportgearrental.app.entity.Equipment;
 import com.sportgearrental.app.repository.EquipmentRepository;
 import com.sportgearrental.app.service.EquipmentService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,8 +52,18 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
+    public Page<Equipment> findAllEquipments(Pageable pageable) {
+        return equipmentRepository.findAll(pageable);
+    }
+
+    @Override
     public List<Equipment> findAllEquipments() {
         return equipmentRepository.findAll();
+    }
+
+    @Override
+    public Page<Equipment> findByCategoryId(Long categoryId, Pageable pageable) {
+        return equipmentRepository.findByCategoryId(categoryId, pageable);
     }
 
     @Override

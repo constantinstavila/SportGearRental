@@ -4,6 +4,8 @@ import com.sportgearrental.app.entity.Category;
 import com.sportgearrental.app.repository.CategoryRepository;
 import com.sportgearrental.app.service.CategoryService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,6 +45,11 @@ public class CategoryServiceImpl implements CategoryService {
     public Category findCategoryById(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + id));
+    }
+
+    @Override
+    public Page<Category> findAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable);
     }
 
     @Override

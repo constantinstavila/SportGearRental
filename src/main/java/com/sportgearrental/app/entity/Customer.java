@@ -15,6 +15,10 @@ import java.util.List;
 @Setter
 public class Customer {
 
+    public enum Role {
+        USER, ADMIN
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,8 +46,9 @@ public class Customer {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "role") // New field for role
-    private String role;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role") // Now Enum
+    private Role role = Role.USER; // Default to USER
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rental> rentals = new ArrayList<>();

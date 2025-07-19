@@ -4,6 +4,8 @@ import com.sportgearrental.app.entity.Customer;
 import com.sportgearrental.app.repository.CustomerRepository;
 import com.sportgearrental.app.service.CustomerService;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +13,8 @@ import java.util.List;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
@@ -23,25 +27,30 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer createCustomer(Customer customer) {
         customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+        if (customer.getRole() == null) {
+            customer.setRole(Customer.Role.USER);
+        }
+        logger.info("Creating customer with email: {}", customer.getEmail());
         return customerRepository.save(customer);
     }
 
     @Override
     public Customer updateCustomer(Long id, Customer customer) {
         Customer existing = customerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
         existing.setFirstName(customer.getFirstName());
         existing.setLastName(customer.getLastName());
         existing.setEmail(customer.getEmail());
         existing.setAddress(customer.getAddress());
         existing.setPhoneNumber(customer.getPhoneNumber());
+        // Role update restricted? Add check if needed
         return customerRepository.save(existing);
     }
 
     @Override
     public void deleteCustomer(Long id) {
         if (!customerRepository.existsById(id)) {
-            throw new EntityNotFoundException("Customer not found with id: " + id);
+            throw new EntityNotFoundException("Customer not found");
         }
         customerRepository.deleteById(id);
     }
@@ -49,16 +58,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer findCustomerById(Long id) {
         return customerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
     }
 
     @Override
     public Customer findCustomerByEmail(String email) {
-        Customer customer = customerRepository.findByEmail(email);
-        if (customer == null) {
-            throw new EntityNotFoundException("Customer not found with email: " + email);
-        }
-        return customer;
+        return customerRepository.findByEmail(email);
+        // Removed exception here to avoid leakage; handle in controller
     }
 
     @Override

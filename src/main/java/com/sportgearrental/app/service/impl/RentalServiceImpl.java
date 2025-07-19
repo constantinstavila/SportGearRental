@@ -35,12 +35,10 @@ public class RentalServiceImpl implements RentalService {
         Equipment equipment = equipmentRepository.findById(rental.getEquipment().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Equipment not found with id: " + rental.getEquipment().getId()));
 
-        // Check equipment availability
         if (!equipment.isAvailable()) {
             throw new IllegalStateException("Equipment is not available for rental");
         }
 
-        // Check for overlapping rentals
         List<Rental> existingRentals = rentalRepository.findByEquipmentId(equipment.getId());
         for (Rental existing : existingRentals) {
             if (!(rental.getEndDate().isBefore(existing.getStartDate()) || rental.getStartDate().isAfter(existing.getEndDate()))) {
@@ -52,8 +50,10 @@ public class RentalServiceImpl implements RentalService {
             throw new IllegalArgumentException("Start date must be before end date");
         }
 
-        // Calculate total cost
         long days = ChronoUnit.DAYS.between(rental.getStartDate(), rental.getEndDate()) + 1;
+        if (days <= 0) {
+            throw new IllegalArgumentException("Invalid rental period");
+        }
         BigDecimal totalCost = equipment.getPricePerDay().multiply(BigDecimal.valueOf(days));
         rental.setTotalCost(totalCost);
 
