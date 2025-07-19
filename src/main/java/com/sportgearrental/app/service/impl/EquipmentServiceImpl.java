@@ -65,4 +65,9 @@ public class EquipmentServiceImpl implements EquipmentService {
                 .map(Equipment::getName)
                 .orElse("Unknown");
     }
+
+    @Override
+    public Equipment save(Equipment equipment) {
+        return equipmentRepository.save(equipment);
+    }
 }

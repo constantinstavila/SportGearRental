@@ -7,17 +7,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
 public class EquipmentController {
+
     private final EquipmentService equipmentService;
     private final CategoryService categoryService;
 
-    public EquipmentController(EquipmentService equipmentService, CategoryService categoryService) {
+    public EquipmentController(EquipmentService equipmentService,
+                               CategoryService categoryService) {
         this.equipmentService = equipmentService;
         this.categoryService = categoryService;
     }
@@ -40,4 +44,5 @@ public class EquipmentController {
         model.addAttribute("equipment", equipment);
         return "equipment-detail";
     }
+
 }

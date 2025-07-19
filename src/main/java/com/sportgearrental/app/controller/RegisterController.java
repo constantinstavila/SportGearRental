@@ -29,14 +29,19 @@ public class RegisterController {
 
     @PostMapping("/register")
     public String registerCustomer(@Valid Customer customer, BindingResult result, Model model) {
+        System.out.println("Received POST /register for email: " + customer.getEmail());
         if (result.hasErrors()) {
+            System.out.println("Validation errors: " + result.getAllErrors());
             return "register";
         }
         try {
+            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
             customerService.createCustomer(customer);
-            return "redirect:/login";
+            System.out.println("Customer created successfully: " + customer.getEmail());
+            return "redirect:/login?success=true";
         } catch (Exception e) {
-            model.addAttribute("error", "Email already exists");
+            System.out.println("Error creating customer: " + e.getMessage());
+            model.addAttribute("error", "Email already exists or registration failed");
             return "register";
         }
     }
