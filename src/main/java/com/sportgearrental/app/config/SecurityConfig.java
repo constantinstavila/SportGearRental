@@ -3,6 +3,8 @@ package com.sportgearrental.app.config;
 import com.sportgearrental.app.repository.CustomerRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -10,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -30,7 +33,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .csrf(csrf -> {}) // CSRF is enabled by default; empty config to not disable or ignore
+                .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/profile", false)
@@ -59,7 +62,7 @@ public class SecurityConfig {
             if (customer == null) {
                 throw new UsernameNotFoundException("Customer not found with email: " + username);
             }
-            String role = customer.getRole() != null ? customer.getRole().name() : "USER"; // Convert enum to String
+            String role = customer.getRole() != null ? customer.getRole().name() : "USER";
             return org.springframework.security.core.userdetails.User
                     .withUsername(customer.getEmail())
                     .password(customer.getPassword())
@@ -71,5 +74,10 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 }

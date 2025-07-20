@@ -6,6 +6,8 @@ import com.sportgearrental.app.service.CustomerService;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +45,9 @@ public class CustomerServiceImpl implements CustomerService {
         existing.setEmail(customer.getEmail());
         existing.setAddress(customer.getAddress());
         existing.setPhoneNumber(customer.getPhoneNumber());
-        // Role update restricted? Add check if needed
+        if (customer.getRole() != null) {
+            existing.setRole(customer.getRole()); // Allow role update
+        }
         return customerRepository.save(existing);
     }
 
@@ -64,7 +68,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer findCustomerByEmail(String email) {
         return customerRepository.findByEmail(email);
-        // Removed exception here to avoid leakage; handle in controller
+    }
+
+    @Override
+    public Page<Customer> findAllCustomers(Pageable pageable) {
+        return customerRepository.findAll(pageable);
     }
 
     @Override

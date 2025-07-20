@@ -24,8 +24,7 @@ public class ScheduledTasks {
                 .toList();
         for (Rental rental : endedRentals) {
             rental.getEquipment().setAvailable(true);
-            rentalRepository.save(rental); // Or save equipment directly
+            rentalRepository.save(rental); // Saves equipment via cascade
         }
     }
 }
-

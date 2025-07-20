@@ -5,6 +5,10 @@ import com.sportgearrental.app.service.CustomerService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +23,12 @@ public class RegisterController {
 
     private final CustomerService customerService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
-    public RegisterController(CustomerService customerService, PasswordEncoder passwordEncoder) {
+    public RegisterController(CustomerService customerService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
         this.customerService = customerService;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
     @GetMapping("/register")
@@ -33,18 +39,29 @@ public class RegisterController {
 
     @PostMapping("/register")
     public String registerCustomer(@Valid Customer customer, BindingResult result, Model model) {
+        logger.debug("Received registration request for email: {}", customer.getEmail());
         if (result.hasErrors()) {
-            logger.warn("Validation errors during registration for email: {}", customer.getEmail());
+            logger.warn("Validation errors during registration: {}", result.getAllErrors());
+            model.addAttribute("errors", result.getAllErrors());
             return "register";
         }
         try {
-            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+            String rawPassword = customer.getPassword();
+            customer.setPassword(passwordEncoder.encode(rawPassword));
             customerService.createCustomer(customer);
             logger.info("Customer created successfully: {}", customer.getEmail());
-            return "redirect:/login?success=true";
+
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(customer.getEmail(), rawPassword)
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            logger.debug("User {} authenticated successfully", customer.getEmail());
+
+            return "redirect:/profile";
         } catch (Exception e) {
-            logger.error("Error creating customer: {}", e.getMessage());
-            model.addAttribute("error", "Registration failed. Email may already exist.");
+            logger.error("Error creating customer: {}", e.getMessage(), e);
+            model.addAttribute("error", "Registration failed: " + e.getMessage());
             return "register";
         }
     }
