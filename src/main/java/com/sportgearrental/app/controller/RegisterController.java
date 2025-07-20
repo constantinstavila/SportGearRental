@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,23 +56,15 @@ public class RegisterController {
             }
             String plainPassword = customer.getPassword();
             customer.setFullName(customer.getFirstName() + " " + customer.getLastName());
-            customer.setPassword(passwordEncoder.encode(plainPassword));
             customer.setRole(Customer.Role.USER);
-            customerService.createCustomer(customer);
+            customer = customerService.createCustomer(customer); // Service handles encoding
             logger.info("Customer created successfully: {}", customer.getEmail());
-
-            // Reload user from DB to ensure transaction is committed
-            customer = customerService.findCustomerByEmail(customer.getEmail());
 
             // Auto-login
             Authentication auth = new UsernamePasswordAuthenticationToken(customer.getEmail(), plainPassword);
             auth = authenticationManager.authenticate(auth);
             SecurityContextHolder.getContext().setAuthentication(auth);
             return "redirect:/profile";
-        } catch (BadCredentialsException e) {
-            logger.error("Auto-login failed with bad credentials for email: {}", customer.getEmail(), e);
-            model.addAttribute("error", "Registration successful, but auto-login failed due to credentials mismatch. Please login manually.");
-            return "redirect:/login";
         } catch (Exception e) {
             logger.error("Error creating customer: {}", e.getMessage(), e);
             model.addAttribute("error", "Registration failed: " + e.getMessage());

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,16 +28,17 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Transactional
     public Customer createCustomer(Customer customer) {
         if (customerRepository.findByEmail(customer.getEmail()) != null) {
             throw new IllegalArgumentException("Email already in use");
         }
-        customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+        customer.setPassword(passwordEncoder.encode(customer.getPassword())); // Encoding here only
         if (customer.getRole() == null) {
             customer.setRole(Customer.Role.USER);
         }
         logger.info("Creating customer: {}", customer.getEmail());
-        return customerRepository.save(customer);
+        return customerRepository.saveAndFlush(customer);
     }
 
     @Override
