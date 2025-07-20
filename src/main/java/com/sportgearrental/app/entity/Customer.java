@@ -23,6 +23,9 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "full_name")
+    private String fullName;
+
     @NotBlank(message = "First name is required")
     @Column(name = "first_name")
     private String firstName;
@@ -47,8 +50,8 @@ public class Customer {
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role") // Now Enum
-    private Role role = Role.USER; // Default to USER
+    @Column(name = "role", nullable = false)
+    private Role role = Role.USER;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rental> rentals = new ArrayList<>();

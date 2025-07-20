@@ -28,6 +28,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer createCustomer(Customer customer) {
+        if (customerRepository.findByEmail(customer.getEmail()) != null) {
+            throw new IllegalArgumentException("Email already in use");
+        }
         customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         if (customer.getRole() == null) {
             customer.setRole(Customer.Role.USER);

@@ -1,18 +1,20 @@
 package com.sportgearrental.app.config;
 
+
 import com.sportgearrental.app.repository.CustomerRepository;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -28,48 +30,40 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/webjars/**", "/register", "/login", "/equipments", "/equipment/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers("/", "/register", "/login", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/profile", false)
-                        .successHandler((request, response, authentication) -> {
-                            if (authentication.getAuthorities().stream()
-                                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
-                                response.sendRedirect("/admin/dashboard");
-                            } else {
-                                response.sendRedirect("/profile");
-                            }
-                        })
+                        .defaultSuccessUrl("/profile", true)
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 );
+
         return http.build();
     }
 
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            com.sportgearrental.app.entity.Customer customer = customerRepository.findByEmail(username);
+            var customer = customerRepository.findByEmail(username);
             if (customer == null) {
-                throw new UsernameNotFoundException("Customer not found with email: " + username);
+                throw new UsernameNotFoundException("User not found");
             }
-            String role = customer.getRole() != null ? customer.getRole().name() : "USER";
-            return org.springframework.security.core.userdetails.User
-                    .withUsername(customer.getEmail())
+
+            return User.builder()
+                    .username(customer.getEmail())
                     .password(customer.getPassword())
-                    .roles(role)
+                    .roles(customer.getRole().name())
                     .build();
         };
     }
+
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -77,7 +71,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
+
+
+
 }

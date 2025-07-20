@@ -5,8 +5,6 @@ import com.sportgearrental.app.service.CustomerService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,16 +21,18 @@ public class RegisterController {
 
     private final CustomerService customerService;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
 
-    public RegisterController(CustomerService customerService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+    public RegisterController(CustomerService customerService, PasswordEncoder passwordEncoder) {
         this.customerService = customerService;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
     }
 
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            return "redirect:/profile";
+        }
         model.addAttribute("customer", new Customer());
         return "register";
     }
@@ -46,19 +46,17 @@ public class RegisterController {
             return "register";
         }
         try {
-            String rawPassword = customer.getPassword();
-            customer.setPassword(passwordEncoder.encode(rawPassword));
+            if (customerService.findCustomerByEmail(customer.getEmail()) != null) {
+                model.addAttribute("error", "Email already in use. Please choose another.");
+                return "register";
+            }
+            customer.setFullName(customer.getFirstName() + " " + customer.getLastName());
+            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+            customer.setRole(Customer.Role.USER);
             customerService.createCustomer(customer);
             logger.info("Customer created successfully: {}", customer.getEmail());
 
-
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(customer.getEmail(), rawPassword)
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            logger.debug("User {} authenticated successfully", customer.getEmail());
-
-            return "redirect:/profile";
+            return "redirect:/login?registered";
         } catch (Exception e) {
             logger.error("Error creating customer: {}", e.getMessage(), e);
             model.addAttribute("error", "Registration failed: " + e.getMessage());
