@@ -40,8 +40,8 @@ public class Customer {
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Column(name = "password")
-    private String password;
+    @Column(name = "password", nullable = false, length = 60, columnDefinition = "CHAR(60) BINARY")
+    private String password;  // Fixed length 60, BINARY for case-sensitive exact match
 
     @Column(name = "address")
     private String address;

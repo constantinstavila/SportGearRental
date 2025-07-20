@@ -35,7 +35,7 @@ public class CustomerServiceImpl implements CustomerService {
         if (customer.getRole() == null) {
             customer.setRole(Customer.Role.USER);
         }
-        logger.info("Creating customer with email: {}", customer.getEmail());
+        logger.info("Creating customer: {}", customer.getEmail());
         return customerRepository.save(customer);
     }
 
@@ -49,7 +49,7 @@ public class CustomerServiceImpl implements CustomerService {
         existing.setAddress(customer.getAddress());
         existing.setPhoneNumber(customer.getPhoneNumber());
         if (customer.getRole() != null) {
-            existing.setRole(customer.getRole()); // Allow role update
+            existing.setRole(customer.getRole());
         }
         return customerRepository.save(existing);
     }
