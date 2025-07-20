@@ -60,7 +60,6 @@ public class RegisterController {
             customer = customerService.createCustomer(customer); // Service handles encoding
             logger.info("Customer created successfully: {}", customer.getEmail());
 
-            // Auto-login
             Authentication auth = new UsernamePasswordAuthenticationToken(customer.getEmail(), plainPassword);
             auth = authenticationManager.authenticate(auth);
             SecurityContextHolder.getContext().setAuthentication(auth);

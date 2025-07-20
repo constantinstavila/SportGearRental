@@ -17,14 +17,14 @@ public class ScheduledTasks {
         this.rentalRepository = rentalRepository;
     }
 
-    @Scheduled(cron = "0 0 0 * * ?") // Daily at midnight
+    @Scheduled(cron = "0 0 0 * * ?")
     public void updateEquipmentAvailability() {
         List<Rental> endedRentals = rentalRepository.findAll().stream()
                 .filter(r -> r.getEndDate().isBefore(LocalDate.now()) && "COMPLETED".equals(r.getStatus()))
                 .toList();
         for (Rental rental : endedRentals) {
             rental.getEquipment().setAvailable(true);
-            rentalRepository.save(rental); // Saves equipment via cascade
+            rentalRepository.save(rental);
         }
     }
 }
